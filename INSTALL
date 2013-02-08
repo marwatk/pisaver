@@ -1,0 +1,42 @@
+This document assumes you've got a fresh pi wheezy install and your network is 
+up and running installing everything to /home/pi/pisaver
+
+Set up app dir:
+    mkdir /home/pi/pisaver
+    cd /home/pi/pisaver
+
+Install raspberry pi java and 7zip
+    sudo apt-get update
+    sudo apt-get install openjdk-6-jdk p7zip-full
+    
+Download and extract the pisaver source:
+    wget https://github.com/marwatk/pisaver/archive/master.zip
+    unzip master.zip
+    
+Download and extract opengl for java for raspberry pi (for more info see: http://www.raspberrypi.org/phpBB3/viewtopic.php?p=211874)
+    wget http://jogamp.org/deployment/archive/master/gluegen_629-joal_396-jogl_903-jocl_741/archive/jogamp-all-platforms.7z
+    7z x jogamp-all-platforms.7z
+    
+Download and extract metadata-extrator for java (image meta data reader):
+    wget https://metadata-extractor.googlecode.com/files/metadata-extractor-2.6.4.zip
+    unzip -d metadata-extractor-2.6.4 metadata-extractor-2.6.4.zip
+    
+Compile pisaver:
+    find pisaver-master -name "*.java" | xargs javac -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar
+
+Make cache folder:
+    mkdir /home/pi/pisaver/savercache
+
+Copy config to base dir:
+    cp /home/pi/pisaver/pisaver-master/pisaver.prop /home/pi/pisaver
+
+Edit config as necessary:
+    vi /home/pi/pisaver/pisaver.prop
+
+Mount your source folders (this step may vary, my folders are on a windows share)
+    sudo apt-get install cifs-utils
+    sudo mkdir /mnt/pictures
+    sudo mount -o username=<username>,password=<password> //<computer>/<share> /mnt/pictures
+    
+Run the screensaver:
+    java -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadatextractor-2.6.4.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures

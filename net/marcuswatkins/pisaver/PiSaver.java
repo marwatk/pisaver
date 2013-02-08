@@ -210,7 +210,7 @@ public class PiSaver implements GLEventListener {
 		
 		glWindow.addGLEventListener(new PiSaver() /* GLEventListener */);
 		Animator animator = new Animator(glWindow);
-		animator.add(glWindow);
+		//animator.add(glWindow); This throws an error with no jogl
 		animator.start();
 		
 	}

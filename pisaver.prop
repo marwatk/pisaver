@@ -12,7 +12,7 @@ includeTags =
 excludeTags = no show;noshow
 
 #If present processed textures will be stored here speeding up the display
-cacheDir = /home/pi/savercache
+cacheDir = /home/pi/pisaver/savercache
 
 #If present these dimensions will override detected settings (currently detection only works when X is running)
 width = 1920
