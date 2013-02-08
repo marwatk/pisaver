@@ -1,0 +1,20 @@
+#If present minRating specifies the minimum rating an image must have to be displayed (inclusive)
+#Unrated pictures are marked as 0.0
+minRating = 4.0
+
+#If present maxRating specifies the maximum rating an image can have to be displayed
+#maxRating = 5.0
+
+#If present, only images tagged with these tags will be included for display (separated by semicolons)
+includeTags = 
+
+#If present, any images containing these tags will never be displayed. Exclusion wins over inclusion. (separated by semicolons)
+excludeTags = no show;noshow
+
+#If present processed textures will be stored here speeding up the display
+cacheDir = /home/pi/savercache
+
+#If present these dimensions will override detected settings (currently detection only works when X is running)
+width = 1920
+height = 1080
+
