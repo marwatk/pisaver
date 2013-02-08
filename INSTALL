@@ -39,4 +39,4 @@ Mount your source folders (this step may vary, my folders are on a windows share
     sudo mount -o username=<username>,password=<password> //<computer>/<share> /mnt/pictures
     
 Run the screensaver:
-    java -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures
+    java -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar:metadata-extractor-2.6.4/xmpcore.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures
