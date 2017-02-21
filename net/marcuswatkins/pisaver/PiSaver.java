@@ -68,27 +68,31 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-
 import net.marcuswatkins.pisaver.filters.ImageMetaDataFilter;
 import net.marcuswatkins.pisaver.gl.GLImage;
 import net.marcuswatkins.pisaver.gl.GLImagePreparer;
 import net.marcuswatkins.pisaver.gl.GLScreen;
 import net.marcuswatkins.pisaver.gl.GLTextureData;
 import net.marcuswatkins.pisaver.sources.FileImageSource;
+import net.marcuswatkins.pisaver.sources.ImageSource;
+import net.marcuswatkins.pisaver.sources.ListImageSource;
+import net.marcuswatkins.pisaver.sources.ResourceSourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
 import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLPipelineFactory;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.Animator;
 
 
 public class PiSaver implements GLEventListener {
-
+	public static final boolean DEBUG = false;
+	
 	public static final String PROPS_FILE = "pisaver.prop";
 	
 	static String filename;
@@ -106,6 +110,8 @@ public class PiSaver implements GLEventListener {
 	
 	private static File cacheDir;
 	
+	private static String fileListPath;
+	
 	public static void main(String[] args) {
 
 		
@@ -122,7 +128,6 @@ public class PiSaver implements GLEventListener {
 				e.printStackTrace();
 			}
 		}
-		
 		String folderStr = props.getProperty( "folders", args.length > 0 ? args[0] : "" );
 		System.out.println( "Using folders: " + folderStr );
 		String folderStrAr[] = folderStr.split( ";" );
@@ -133,6 +138,8 @@ public class PiSaver implements GLEventListener {
 		
 		float minRating = Util.safeParseFloat( props.getProperty( "minRating" ), -1.0f );
 		float maxRating = Util.safeParseFloat( props.getProperty( "maxRating" ), -1.0f );
+		
+		boolean cfgFs = Util.safeParseBool( props.getProperty( "fullScreen", "true" ), true );
 		
 		String includedTags = props.getProperty( "includeTags" );
 		String includedTagsAr[] = null;
@@ -161,14 +168,28 @@ public class PiSaver implements GLEventListener {
 		int cfgWidth = Util.safeParseInt(props.getProperty( "width" ), -1);
 		int cfgHeight = Util.safeParseInt(props.getProperty( "height" ), -1);
 		
+		
 		filter = new ImageMetaDataFilter( minRating, maxRating, includedTagsAr, excludedTagsAr );
 		
-		
+		fileListPath = props.getProperty( "fileListFile" );
+				
 		
 		saver = new Saver<GL2ES2,GLTextureData,GLScreen>( );
 		
+		String profiles[] = GLProfile.GL_PROFILE_LIST_ALL;
+		for( int i = 0; i < profiles.length; i++ ) {
+			try {
+				GLCapabilities c = new GLCapabilities( GLProfile.get( profiles[i] ) );
+				if( c != null ) {
+					System.err.println( profiles[i] + " available" );
+				}
+			}
+			catch( Exception e ) {
+				System.err.println( profiles[i] + ": " + e.getMessage() );
+			}
+		}
 		
-		
+		System.err.println( "GL PROFILES: " + Util.join( GLProfile.GL_PROFILE_LIST_ALL, ", " ) );
 		GLCapabilities caps = new GLCapabilities(GLProfile.get(GLProfile.GL2ES2));
 		// We may at this point tweak the caps and request a translucent
 		// drawable
@@ -179,7 +200,6 @@ public class PiSaver implements GLEventListener {
 		// In this demo we prefer to setup and view the GLWindow directly
 		// this allows the demo to run on -Djava.awt.headless=true systems
 		
-		boolean fs = false;
 		if( cfgWidth == -1 || cfgHeight == -1 ) {
 			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); 
 			width = (int)dim.getWidth(); 
@@ -188,7 +208,6 @@ public class PiSaver implements GLEventListener {
 		else {
 			width = cfgWidth;
 			height = cfgHeight;
-			fs = true;
 		}
 		
 		glWindow.setTitle("Collage Saver");
@@ -196,7 +215,7 @@ public class PiSaver implements GLEventListener {
 		glWindow.setUndecorated(false);
 		glWindow.setPointerVisible(true);
 		glWindow.setVisible(true);
-		glWindow.setFullscreen( fs );
+		glWindow.setFullscreen( cfgFs );
 
 		
 		//glWindow.setSize( glWindow.getScreen().getWidth(), glWindow.getScreen().getHeight() );
@@ -217,6 +236,10 @@ public class PiSaver implements GLEventListener {
 
 
 	public void init(GLAutoDrawable drawable) {
+		if( DEBUG ) {
+			drawable.getGL().getContext().setGL( GLPipelineFactory.create( "javax.media.opengl.Debug", null, drawable.getGL(), null ) );
+		}
+		//drawable.setGL( new DebugGL2ES2( drawable.getGL().getGL2ES2() ) );
 		GL2ES2 gl = drawable.getGL().getGL2ES2();
 
 		
@@ -226,7 +249,7 @@ public class PiSaver implements GLEventListener {
 		System.err.println("GL_VENDOR: " + gl.glGetString(GL.GL_VENDOR));
 		System.err.println("GL_RENDERER: " + gl.glGetString(GL.GL_RENDERER));
 		System.err.println("GL_VERSION: " + gl.glGetString(GL.GL_VERSION));
-		
+		System.err.println( "NPOT: " + gl.isNPOTTextureAvailable() );
 		
 		try {
 			GLImage.init(gl);
@@ -238,11 +261,31 @@ public class PiSaver implements GLEventListener {
 		gl.glEnable( GL2ES2.GL_BLEND );
 		gl.glBlendFunc( GL2ES2.GL_SRC_ALPHA, GL2ES2.GL_ONE_MINUS_SRC_ALPHA );
 		ImagePreparer<GLTextureData> preparer = new GLImagePreparer( gl );
-		
 		if( cacheDir != null && cacheDir.isDirectory() ) {
 			preparer = new CachingImagePreparer<GLTextureData>( cacheDir, preparer, new GLTextureData() );
 		}
-		saver.init( new FileImageSource<GLTextureData>( folders, filter, preparer ), screen );
+		try {
+			GLTextureData data = preparer.prepareImage( new ResourceSourceImage( "shadow.png" ) );
+			GLImage shadow = new GLImage( gl, data );
+			GLImage.setShadow( shadow );
+		}
+		catch( Exception e ) {
+			
+		}
+		ImageSource<GLTextureData> imageSource = null;
+		System.err.println( "File list path: " + fileListPath );
+		if( fileListPath != null ) {
+			File fileListFile = new File( fileListPath );
+			if( fileListFile.exists() && fileListFile.canRead() && fileListFile.length() > 0 ) {
+				System.err.println( "Using file list instead of scanning folders" );
+				imageSource = new ListImageSource<GLTextureData>( fileListPath, filter, preparer );
+			}
+		}
+		if( imageSource == null ) {
+			imageSource = new FileImageSource<GLTextureData>( folders, filter, preparer );
+		}
+		
+		saver.init( imageSource, screen );
 	}
 
 	public void reshape(GLAutoDrawable drawable, int x, int y, int z, int h) {
@@ -252,7 +295,7 @@ public class PiSaver implements GLEventListener {
 		screen.reshape( width, height );
 		saver.screenChanged();
 	}
-
+	
 	public void display(GLAutoDrawable drawable) {
 		//drawable.setGL( new DebugGL2ES2( drawable.getGL().getGL2ES2() ) );
 		GL2ES2 gl = drawable.getGL().getGL2ES2();

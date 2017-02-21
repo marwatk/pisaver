@@ -9,33 +9,40 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.marcuswatkins.pisaver.CacheablePreparedImage;
+import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
 import com.jogamp.opengl.util.texture.TextureData;
 
 public class GLTextureData implements CacheablePreparedImage<GLTextureData> {
+	
 	public static final int BYTE_ORDER_ARGB = 1;
+	/*
 	public static final int BYTE_ORDER_RGBA = 2;
 	public static final int BYTE_ORDER_RGB_565 = 3;
 	public static final int BYTE_ORDER_RGB = 4;
 	public static final int BYTE_ORDER_NA = 5;
+	*/
 	
 	int byteOrder;
+	private SourceImage sourceImage;
 	
-	public GLTextureData(TextureData data) {
+	public GLTextureData(TextureData data, SourceImage source ) {
 		this.tData = data;
 		height = data.getHeight();
 		width = data.getWidth();
-		byteOrder = BYTE_ORDER_NA;
+		byteOrder = data.getPixelFormat();
+		sourceImage = source;
 	}
-	public GLTextureData(byte[] data, int width, int height, int byteOrder ) {
+	public GLTextureData(byte[] data, int width, int height, int byteOrder, SourceImage source ) {
 		this.bData = data;
 		this.width = width;
 		this.height = height;
 		this.byteOrder = byteOrder;
+		sourceImage = source;
 	}
-	public GLTextureData(int[] data, int width, int height, int byteOrder) {
-		this( Util.intArrayToByteArray( data ), width, height, byteOrder );
+	public GLTextureData(int[] data, int width, int height, int byteOrder, SourceImage source) {
+		this( Util.intArrayToByteArray( data ), width, height, byteOrder, source );
 	}
 	
 	public GLTextureData() {
@@ -75,7 +82,7 @@ public class GLTextureData implements CacheablePreparedImage<GLTextureData> {
 		}
 	}
 	@Override
-	public GLTextureData readCached(InputStream is) throws IOException {
+	public GLTextureData readCached(InputStream is, SourceImage source ) throws IOException {
 		DataInputStream dis = new DataInputStream( new BufferedInputStream( is, BUFFER_SIZE ) );
 		if( dis.readInt() != SPECIAL ) {
 			throw new IOException( "Texture cache doesn't have proper header" );
@@ -88,8 +95,13 @@ public class GLTextureData implements CacheablePreparedImage<GLTextureData> {
 		if( type == TYPE_BYTE ) {
 			byte bytes[] = new byte[length];
 			dis.readFully( bytes );
-			return new GLTextureData( bytes, width, height, byteOrder );
+			return new GLTextureData( bytes, width, height, byteOrder, source );
 		}
 		throw new IOException( "Invalid type: " + type );
+	}
+
+	@Override
+	public SourceImage getSource() {
+		return sourceImage;
 	}
 }

@@ -7,15 +7,14 @@ Set up app dir:
 
 Install raspberry pi java and 7zip
     sudo apt-get update
-    sudo apt-get install openjdk-6-jdk p7zip-full
+    sudo apt-get install oracle-java7-jdk p7zip-full
     
 Download and extract the pisaver source:
     wget https://github.com/marwatk/pisaver/archive/master.zip
     unzip master.zip
-    
-Download and extract opengl for java for raspberry pi (for more info see: http://www.raspberrypi.org/phpBB3/viewtopic.php?p=211874)
-    wget http://jogamp.org/deployment/archive/master/gluegen_629-joal_396-jogl_903-jocl_741/archive/jogamp-all-platforms.7z
-    7z x jogamp-all-platforms.7z
+
+Install jogl:
+    sudo apt-get install libjogl-java libjogl-jni libjogl2-java libgluegen2-rt-java libgluegen2-jni libjogl2-jni
     
 Download and extract metadata-extrator for java (image meta data reader):
     wget https://metadata-extractor.googlecode.com/files/metadata-extractor-2.6.4.zip
@@ -39,4 +38,4 @@ Mount your source folders (this step may vary, my folders are on a windows share
     sudo mount -o username=<username>,password=<password> //<computer>/<share> /mnt/pictures
     
 Run the screensaver (you can add as many pictures folders as you want to the end of the command):
-    java -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar:metadata-extractor-2.6.4/xmpcore.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures
+java -classpath /usr/share/java/jogl2.jar:/usr/share/java/gluegen2-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar:metadata-extractor-2.6.4/xmpcore.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures

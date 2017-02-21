@@ -1,10 +1,10 @@
 package net.marcuswatkins.pisaver.filters;
-import java.io.File;
+import net.marcuswatkins.pisaver.sources.SourceImage;
 
 /**
  * 
  */
 
 public interface ImageFilter {
-	public boolean passesFilter( File image );
+	public boolean passesFilter( SourceImage image );
 }

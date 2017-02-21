@@ -3,18 +3,17 @@ package net.marcuswatkins.pisaver.gl;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Scanner;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
-import javax.media.opengl.GL2ES2;
-
-import net.marcuswatkins.pisaver.PiSaver;
 import net.marcuswatkins.pisaver.util.Util;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES2;
 
 
 public class GLUtil {
@@ -50,11 +49,18 @@ public class GLUtil {
 		return shaderNum;
 	
 	}
-
+	/* This returns square values for some reason (i.e 1280x1280 instead of 1280x720), nto sure why, don't need it, not looking into it
+	public static Dimension getWindowSize( GL2ES2 gl ) {
+		IntBuffer b = IntBuffer.allocate( 4 );
+		gl.glGetIntegerv( GL2ES2.GL_VIEWPORT, b );
+		return new Dimension( b.get( 2 ), b.get( 3 ) );
+	}
+	*/
+	
 	public static int createProgram(GL2ES2 gl, String vShaderStr,
 			String fShaderStr) {
-		System.err.println( "Vertex Shader:\n" + vShaderStr + "\n\n\n" );
-		System.err.println( "Fragment Shader:\n" + fShaderStr + "\n\n\n" );
+		//System.err.println( "Vertex Shader:\n" + vShaderStr + "\n\n\n" );
+		//System.err.println( "Fragment Shader:\n" + fShaderStr + "\n\n\n" );
 		
 		int vShader = compileShader(gl, vShaderStr, GL2ES2.GL_VERTEX_SHADER);
 		int fShader = compileShader(gl, fShaderStr, GL2ES2.GL_FRAGMENT_SHADER);
@@ -66,15 +72,6 @@ public class GLUtil {
 		gl.glLinkProgram(shader);
 	
 		return shader;
-	}
-
-	public static String readResource(String name) throws IOException {
-		URL url = PiSaver.class.getResource(name);
-		InputStream is = url.openStream();
-		Scanner s = new Scanner(is, "UTF-8");
-		String rval = s.useDelimiter("\\A").next();
-		s.close();
-		return rval;
 	}
 
 	public static int createSimpleTexture2D(GL2ES2 gl) {
@@ -120,8 +117,22 @@ public class GLUtil {
 		}
 		return false;
 	}
+	
+	private static final IntBuffer intBuf = IntBuffer.allocate( 1 );
+	
+	/*
+	public static final void glDrawElements( GL gl, int mode, int count, int type, ShortBuffer indices ) {
+		
+		gl.glGenBuffers( 1, intBuf );
+		gl.glBindBuffer( GL.GL_ARRAY_BUFFER, intBuf.get(0) );
+		gl.glBufferData( GL.GL_ARRAY_BUFFER, indices.remaining() * 2, indices, GL.GL_STATIC_DRAW);
+		gl.glDrawElements( mode, count, type, 0 );
+		gl.glDeleteBuffers( 1, intBuf );
+	}
+	*/
+ 
 
 	public static final int PREFERRED_TYPE = BufferedImage.TYPE_USHORT_565_RGB;
-	public static final int MAX_DIMENSION = 1024;
+	public static final int MAX_DIMENSION = 2048;
 
 }

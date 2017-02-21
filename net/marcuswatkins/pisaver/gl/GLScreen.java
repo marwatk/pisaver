@@ -1,9 +1,11 @@
 package net.marcuswatkins.pisaver.gl;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import javax.media.opengl.GL2ES2;
-
+import net.marcuswatkins.pisaver.NativeImage;
 import net.marcuswatkins.pisaver.NativeScreen;
+
+import com.jogamp.opengl.GL2ES2;
 
 
 public class GLScreen implements NativeScreen<GL2ES2,GLTextureData> {
@@ -13,6 +15,8 @@ public class GLScreen implements NativeScreen<GL2ES2,GLTextureData> {
 	private float top;
 	private float bottom;
 	private float right;
+	private int width;
+	private int height;
 	public GLScreen( GL2ES2 gl ) throws IOException {
 		this.gl = gl;
 		GLImage.init( gl );
@@ -45,7 +49,9 @@ public class GLScreen implements NativeScreen<GL2ES2,GLTextureData> {
 		return ( right - left ) / ( top - bottom );
 	}
 
-	public void reshape( int width, int height ) {
+	public void reshape( int w, int h ) {
+		this.width = w;
+		this.height = h;
 		if( width > height ) {
 			gl.glViewport( 0, (width - height) / -2, width, width);
 			left = -1.0f;
@@ -67,4 +73,20 @@ public class GLScreen implements NativeScreen<GL2ES2,GLTextureData> {
 		return new GLImage( gl, t );
 	}
 
+	@Override
+	public NativeImage<GL2ES2, GLTextureData> captureScreen() {
+		byte[] buffer = captureBuffer( );
+		GLTextureData texture = new GLTextureData( buffer, width, height, GL2ES2.GL_RGB, null );
+		GLImage image = new GLImage( gl, texture, true );
+		image.setAlpha( 1.0f );
+		image.setRotation( 0.0f );
+		image.setScale( 1.0f, -1.0f );
+		return image;
+	}
+	private byte[] captureBuffer( ) {
+		byte[] buffer = new byte[width*height*3];
+		ByteBuffer b = ByteBuffer.wrap( buffer );
+		gl.glReadPixels( 0, 0, width, height, GL2ES2.GL_RGB, GL2ES2.GL_UNSIGNED_BYTE, b );
+		return buffer;
+	}
 }

@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,15 +15,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import net.marcuswatkins.pisaver.PiSaver;
 import net.marcuswatkins.pisaver.gl.GLUtil;
 
 
@@ -34,6 +38,15 @@ public class Util {
 		is.readFully( b );
 		is.close();
 		return b;
+	}
+	public static byte[] readInputStream( InputStream is ) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+        for (int len; (len = is.read(buffer)) != -1;) {
+            os.write(buffer, 0, len);
+        }
+        os.flush();
+        return os.toByteArray();
 	}
 
 	public static String join( String s[], String sep ) {
@@ -144,6 +157,10 @@ public class Util {
 			tf.delete();
 		}
 	}
+	
+	public static int calcOtherDimension( int source1, int source2, int target1 ) {
+		return ( source2 * target1) / source1;
+	}
 
 	public static Dimension calcResizeDimensions( Dimension src, int maxDim ) {
 		if( src.width <= maxDim && src.height <= maxDim ) {
@@ -171,7 +188,16 @@ public class Util {
 			return def;
 		}
 	}
-
+	public static boolean safeParseBool( String s, boolean def ) {
+		s = s.toLowerCase().trim();
+		if( "true".equals( s ) || "1".equals( s ) || "yes".equals( s ) ) {
+			return true;
+		}
+		if( "false".equals( s ) || "0".equals( s ) || "no".equals( s ) ) {
+			return false;
+		}
+		return def;
+	}
 	public static String md5sum( String input ) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("MD5");
 		digest.update( input.getBytes( "UTF-8" ) );
@@ -200,5 +226,35 @@ public class Util {
 		buf.asIntBuffer().put( intArray );
 		buf = null;
 		return bytes;
+	}
+
+	public static String readResource(String name) throws IOException {
+		URL url = PiSaver.class.getResource(name);
+		InputStream is = url.openStream();
+		Scanner s = new Scanner(is, "UTF-8");
+		String rval = s.useDelimiter("\\A").next();
+		s.close();
+		return rval;
+	}
+
+	public static boolean isJpeg( File file ) {
+		String lName = file.getName().toLowerCase();
+		if( lName.endsWith( ".jpg" ) || lName.endsWith( ".jpeg" ) ) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isImage( File file ) {
+		if( !isJpeg( file ) ) {
+			return false;
+		}
+		if( file.isDirectory() ) {
+			return false;
+		}
+		if( !file.canRead() ) {
+			return false;
+		}
+		return true;
 	}
 }

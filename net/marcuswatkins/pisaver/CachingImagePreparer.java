@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
 
@@ -30,16 +31,18 @@ public class CachingImagePreparer<T extends CacheablePreparedImage<T>> implement
 	}
 
 	@Override
-	public T prepareImage(File f) throws Exception {
+	public T prepareImage(SourceImage f) throws Exception {
 		long start = System.currentTimeMillis();
-		String cacheFileName = Util.md5sum( f.getCanonicalPath() ) + ".cache";
+		long prepareTime;
+		long cacheSaveTime;
+		String cacheFileName = Util.md5sum( f.getUniqueReference() ) + ".cache";
 		File cacheFile = new File( cacheDir.getCanonicalPath() + "/" + cacheFileName ); 
 		FileInputStream is = null;;
 		try {
 			try {
 				if( cacheFile.exists() ) {
 					is = new FileInputStream( cacheFile );
-					T result = (T)reader.readCached( is ); //There's probably a trick to making this generic work, but I gave up
+					T result = (T)reader.readCached( is, f ); //There's probably a trick to making this generic work, but I gave up
 					System.err.println( "Cache hit!" );
 					return result;
 				}
@@ -52,6 +55,8 @@ public class CachingImagePreparer<T extends CacheablePreparedImage<T>> implement
 				Util.safeClose( is );
 			}
 			T result = realPrep.prepareImage( f );
+			prepareTime = System.currentTimeMillis() - start;
+			System.err.println( "Actual prepare time: " + prepareTime );
 			if( result.isCacheable() ) {
 				FileOutputStream os = null;
 				boolean written = false;

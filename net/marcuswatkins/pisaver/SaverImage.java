@@ -7,19 +7,16 @@ package net.marcuswatkins.pisaver;
 
 public class SaverImage<R,T> {
 	private NativeImage<R,?> nativeImage;
-	private SaverAnim anims[];
-	private float x;
-	private float y;
-	private int activeAnim = 0;
+	private SaverAnim animation;
 	
-	public SaverImage( NativeImage<R,?> nativeImage, float x, float y, SaverAnim anim[] ) {
+	public SaverImage( NativeImage<R,?> nativeImage, float x, float y, SaverAnim anim ) {
 		this.nativeImage = nativeImage;
 		nativeImage.setPosition( x, y );
-		this.anims = anim;
+		this.animation = anim;
 	}
 	
-	public void animate() {
-		anims[activeAnim].animate( this, nativeImage );
+	public boolean animate() {
+		return animation.animate( this, nativeImage );
 	}
 	public void draw( R renderer ) {
 		this.nativeImage.draw( renderer );
@@ -27,8 +24,5 @@ public class SaverImage<R,T> {
 
 	public void cleanup( R renderer ) {
 		this.nativeImage.dispose( renderer );
-	}
-	public void setActiveAnim( int idx ) {
-		this.activeAnim = idx;
 	}
 }

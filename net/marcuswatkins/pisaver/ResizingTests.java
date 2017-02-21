@@ -4,13 +4,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
-import javax.media.opengl.GLProfile;
 
-import net.marcuswatkins.pisaver.gl.GLImagePreparer;
 import net.marcuswatkins.pisaver.gl.GLTextureData;
 import net.marcuswatkins.pisaver.gl.GLUtil;
 import net.marcuswatkins.pisaver.util.Util;
 
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
@@ -151,7 +151,7 @@ public class ResizingTests {
 			dim = Util.calcResizeDimensions( dim, GLUtil.MAX_DIMENSION );
 			byte b[] = Util.createRGB888Bytes( f, dim.width, dim.height );
 			System.err.println( "buffer length: " + b.length + " dims: " + dim );
-			return new GLTextureData( b, dim.width, dim.height, GLTextureData.BYTE_ORDER_RGB );
+			return new GLTextureData( b, dim.width, dim.height, GL2ES2.GL_RGB, null );
 		}
 	    finally {
 	    	System.err.println( "Finished preparing (" + (System.currentTimeMillis() - start) + ")" );
@@ -178,7 +178,7 @@ public class ResizingTests {
 	
 			byte array[] = scaleImage565( src, newDim.width, newDim.height, getBuffer( dim.height, dim.width ), null );
 	        //TextureData tex = AWTTextureIO.newTextureData(GLProfile.getDefault(), img, false);
-	        return new GLTextureData( array, newDim.width, newDim.height, GLTextureData.BYTE_ORDER_RGB_565 );
+	        return new GLTextureData( array, newDim.width, newDim.height, GL2ES2.GL_RGB565, null );
 		}
 	    finally {
 	    	System.err.println( "Finished preparing (" + (System.currentTimeMillis() - start) + ")" );
@@ -199,7 +199,7 @@ public class ResizingTests {
 		}
 		try {
 			TextureData tex = AWTTextureIO.newTextureData(GLProfile.getDefault(), img, false);
-	        return new GLTextureData( tex );
+	        return new GLTextureData( tex, null );
 		}
 	    finally {
 	    	System.err.println( "Finished preparing (" + (System.currentTimeMillis() - start) + ")" );

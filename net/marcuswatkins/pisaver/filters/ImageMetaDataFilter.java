@@ -2,6 +2,8 @@ package net.marcuswatkins.pisaver.filters;
 
 import java.io.File;
 
+import net.marcuswatkins.pisaver.sources.FileSourceImage;
+import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
 import com.drew.imaging.ImageMetadataReader;
@@ -28,9 +30,8 @@ public class ImageMetaDataFilter implements ImageFilter {
 	}
 	
 	@Override
-	public boolean passesFilter(File image) {
+	public boolean passesFilter(SourceImage image) {
 		try {
-			Metadata metadata = ImageMetadataReader.readMetadata( image );
 			/*
 			for (Directory directory : metadata.getDirectories()) {
 			    for (Tag tag : directory.getTags()) {
@@ -39,7 +40,7 @@ public class ImageMetaDataFilter implements ImageFilter {
 			    }
 			}
 			*/
-			float rating = getRating( metadata );
+			float rating = image.getRating( );
 			if( minRating >= 0 && rating < minRating ) {
 				System.err.println( "File " + image + " doesn't fit minRating ( " + rating + " < " + minRating + ")" );
 				return false;
@@ -48,7 +49,7 @@ public class ImageMetaDataFilter implements ImageFilter {
 				System.err.println( "File " + image + " doesn't fit maxRating ( " + rating + " > " + maxRating + ")" );
 				return false;
 			}
-			String tags[] = getTags( metadata );
+			String tags[] = image.getTags( );
 			if( hasUnion( tags, excludedTags ) ) { //Exclude trumps include
 				System.err.println( "File " + image + " matches excluded tags (tags: " + Util.join( tags, ";" ) + ")" );
 				return false;
@@ -96,53 +97,10 @@ public class ImageMetaDataFilter implements ImageFilter {
 		return false;
 	}
 	
-	public float getRating( Metadata metadata ) {
-		Directory dir1 = metadata.getDirectory( XmpDirectory.class );
-		if( dir1 != null ) {
-			String ratingString = dir1.getString( XmpDirectory.TAG_RATING );
-			if( ratingString != null ) {
-				try {
-					return Float.parseFloat( ratingString );
-				}
-				catch( Exception e ) {
-					
-				}
-			}
-		}
-		Directory dir2 = metadata.getDirectory( ExifIFD0Directory.class );
-		if( dir2 != null ) {
-			String ratingString = dir2.getString( 0x4746 ); //Tag windows uses for ratings
-			if( ratingString != null ) {
-				try {
-					return Float.parseFloat( ratingString );
-				}
-				catch( Exception e ) {
-					
-				}
-			}
-		}
-		return 0;
-		
-	}
-	
-	public String[] getTags( Metadata metadata ) {
-		ExifIFD0Directory dir1 = metadata.getDirectory( ExifIFD0Directory.class );
-		if( dir1 != null ) {
-			ExifIFD0Descriptor desc = new ExifIFD0Descriptor( dir1 );
-			String tags = desc.getWindowsKeywordsDescription();
-			if( tags != null && tags.trim().length() > 0 ) {
-				return tags.toLowerCase().trim().split( ";" );
-			}
-		}
-		return new String[0];
-	}
-	
-	
-	
 	public static void main( String args[] ) {
 		File f = new File( "D:\\Personal\\eyefi\\11-19-2011\\IMG_4250.JPG");
 		ImageMetaDataFilter filter = new ImageMetaDataFilter( 1.0f, -1.0f, new String[] { "antmissa" }, new String[] { "nfow" } );
-		System.err.println( filter.passesFilter( f ) );
+		System.err.println( filter.passesFilter( new FileSourceImage( f ) ) );
 	}
 
 }

@@ -1,11 +1,11 @@
 package net.marcuswatkins.pisaver;
-import java.io.File;
+import net.marcuswatkins.pisaver.sources.SourceImage;
 
 /**
  * 
  */
 
-public interface ImagePreparer<K> {
-	public K prepareImage( File f ) throws Exception;
+public interface ImagePreparer<K extends PreparedImage> {
+	public K prepareImage( SourceImage f ) throws Exception;
 	public int getLastPrepareTime();
 }

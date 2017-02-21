@@ -22,19 +22,23 @@ public class SaverAnim {
 		this.listener = listener;
 	}
 	
-	void animate( SaverImage<?,?> img, NativeImage<?,?> nativeImage ) {
+	boolean animate( SaverImage<?,?> img, NativeImage<?,?> nativeImage ) {
+		boolean animationFinished = false;
 		long now = System.currentTimeMillis();
 		if( start == 0 ) {
 			start = now; 
 		}
 		int elapsed = (int)(now - start);
-		if( elapsed >= duration && listener != null ) {
-			listener.animationFinished( img );
-			listener = null;
+		if( elapsed >= duration ) {
+			animationFinished = true;
+			if( listener != null ) {
+				listener.animationFinished( img );
+			}
 		}
 		nativeImage.setAlpha( interpolate( alpha, elapsed, Saver.ALPHA_DURATION ) );
 		nativeImage.setScale( interpolate( scale, elapsed, duration ) );
 		nativeImage.setRotation( interpolate( rotation, elapsed, duration ) );
+		return animationFinished;
 	}
 	private static float interpolate( float array[], int elapsed, int duration ) {
 		int intervals = array.length - 1;

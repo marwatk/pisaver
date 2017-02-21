@@ -5,15 +5,16 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import net.marcuswatkins.pisaver.ImagePreparer;
+import net.marcuswatkins.pisaver.PreparedImage;
 import net.marcuswatkins.pisaver.filters.ImageFilter;
 
 /**
  * 
  */
 
-public abstract class ImageSource<K> {
+public abstract class ImageSource<K extends PreparedImage> {
 	private K next;
-	protected boolean hadGoodImage = true;
+	private boolean hadGoodImage = true;
 	private ImageFilter filter;
 	private ImagePreparer<K> preparer;
 	private boolean prepareRunning = false;
@@ -35,6 +36,7 @@ public abstract class ImageSource<K> {
 		while( next == null ) {
 			while( !haveNextSourceItem() ) {
 				if( hadGoodImage ) { //We're at the end of the list, load a refreshed one
+					hadGoodImage = false;
 					refreshList( false );
 				}
 				else {
@@ -42,7 +44,7 @@ public abstract class ImageSource<K> {
 					System.exit( 0 );
 				}
 			}
-			File nextAttempt = getNextSourceItem();
+			SourceImage nextAttempt = getNextSourceItem();
 			if( filter.passesFilter( nextAttempt ) ) {
 				try {
 					next = preparer.prepareImage( nextAttempt );
@@ -77,7 +79,7 @@ public abstract class ImageSource<K> {
 
 	}
 	protected abstract void refreshSource();
-	protected abstract File getNextSourceItem(); //This will eventually need to be something other than 'File' if more sources are allowed
+	protected abstract SourceImage getNextSourceItem(); //This will eventually need to be something other than 'File' if more sources are allowed
 	protected abstract boolean haveNextSourceItem();
 	
 	public boolean nextReady() {
@@ -103,39 +105,6 @@ public abstract class ImageSource<K> {
 		
 	}
 	
-	private boolean isImage( File file ) {
-		if( file.isDirectory() ) {
-			return false;
-		}
-		if( !file.canRead() ) {
-			return false;
-		}
-		String lName = file.getName().toLowerCase();
-		if( lName.endsWith( ".jpg" ) || lName.endsWith( ".jpeg" ) ) {
-			return true;
-		}
-		return false;
-	}
-	
-	protected void scanFolder( File folder, Collection<File> files ) {
-		if( files.contains( folder ) ) { //Don't scan same folder twice (should probably do canonical here, but this is quick and dirty
-			return;
-		}
-		if( files.size() >= MAX_IMAGES ) {
-			return;
-		}
-		//System.err.println( "Scanning: " + folder );
-		if( folder.isDirectory() ) {
-			File subFiles[] = folder.listFiles();
-			for( int i = 0; i < subFiles.length; i++ ) {
-				scanFolder( subFiles[i], files );
-			}
-		}
-		else if( isImage( folder ) ) {
-			System.err.println( "Adding " + folder );
-			files.add( folder );
-		}
-	}
 	 
 	public static <T> void copyCollectionInto( Collection<? extends T> src, Collection<? super T> dst ) {
 		Iterator<? extends T> iter = src.iterator();
