@@ -13,15 +13,15 @@ Download and extract the pisaver source:
     wget https://github.com/marwatk/pisaver/archive/master.zip
     unzip master.zip
 
-Install jogl:
-    sudo apt-get install libjogl-java libjogl-jni libjogl2-java libgluegen2-rt-java libgluegen2-jni libjogl2-jni
+Download and unpack jogamp jogl:
+    wget https://jogamp.org/deployment/jogamp-current/archive/jogamp-all-platforms.7z
+    7z x jogamp-all-platforms.7z
     
-Download and extract metadata-extrator for java (image meta data reader):
-    wget https://metadata-extractor.googlecode.com/files/metadata-extractor-2.6.4.zip
-    unzip -d metadata-extractor-2.6.4 metadata-extractor-2.6.4.zip
-    
+Install metadata-extractor:
+    sudo apt-get install libmetadata-extractor-java
+
 Compile pisaver:
-    find pisaver-master -name "*.java" | xargs javac -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar
+    find pisaver-master -name "*.java" | xargs javac -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:/usr/share/java/metadata-extractor.jar
 
 Make cache folder:
     mkdir /home/pi/pisaver/savercache
@@ -38,4 +38,4 @@ Mount your source folders (this step may vary, my folders are on a windows share
     sudo mount -o username=<username>,password=<password> //<computer>/<share> /mnt/pictures
     
 Run the screensaver (you can add as many pictures folders as you want to the end of the command):
-java -classpath /usr/share/java/jogl2.jar:/usr/share/java/gluegen2-rt.jar:metadata-extractor-2.6.4/metadata-extractor-2.6.4.jar:metadata-extractor-2.6.4/xmpcore.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures
+java -classpath jogamp-all-platforms/jar/jogl-all.jar:jogamp-all-platforms/jar/gluegen-rt.jar:/usr/share/java/metadata-extractor.jar:/usr/share/java/xmpcore.jar:pisaver-master net.marcuswatkins.pisaver.PiSaver /mnt/pictures
