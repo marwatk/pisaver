@@ -9,9 +9,6 @@ import net.marcuswatkins.pisaver.ImagePreparer;
 import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
-import org.libjpegturbo.turbojpeg.TJ;
-import org.libjpegturbo.turbojpeg.TJDecompressor;
-
 import com.jogamp.opengl.GL2ES2;
 
 
@@ -51,6 +48,8 @@ public class GLImagePreparer implements ImagePreparer<GLTextureData>{
 		}
 	}
 	private GLTextureData prepareImageBufferedImageGetRGB_Turbo( SourceImage f ) throws Exception {
+		return prepareImageBufferedImageGetRGB_JDK( f );
+		/*
 		long start = System.currentTimeMillis();
 		TJDecompressor dec = null;
     	try {
@@ -82,10 +81,10 @@ public class GLImagePreparer implements ImagePreparer<GLTextureData>{
         	lastPrepareTime = (int)(System.currentTimeMillis() - start);
         	if( dec != null ) dec.close();
         }
-		
+		*/
 		
 	}
-	
+	/*
 	private Dimension getScaledDims( TJDecompressor dec, Dimension target ) throws Exception {
 		
 		int max = dec.getWidth();
@@ -101,7 +100,7 @@ public class GLImagePreparer implements ImagePreparer<GLTextureData>{
 		}
 		return new Dimension( max, dec.getHeight() );
 	}
-	
+	*/
 	
 	private GLTextureData prepareImageBufferedImageGetRGB_JDK( SourceImage f ) throws Exception {
 		long start = System.currentTimeMillis();
