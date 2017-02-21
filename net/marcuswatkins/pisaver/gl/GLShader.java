@@ -76,7 +76,7 @@ public class GLShader {
 	private void glVertexAttribPointer( GL2ES2 gl, int bufferName, int indx, int size, int type, boolean normalized, int stride, FloatBuffer vertices) {
 		
 		gl.glBindBuffer( GL.GL_ARRAY_BUFFER, bufferName );
-		gl.glBufferData( GL.GL_ARRAY_BUFFER, vertices.remaining() * Float.BYTES, vertices, GL.GL_STATIC_DRAW);
+		gl.glBufferData( GL.GL_ARRAY_BUFFER, vertices.remaining() * (Float.SIZE / 8), vertices, GL.GL_STATIC_DRAW);
 		gl.glVertexAttribPointer(indx, 2, GL2ES2.GL_FLOAT, false, stride, 0);
 		gl.glBindBuffer( GL.GL_ARRAY_BUFFER, 0 );
 	}
