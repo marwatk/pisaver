@@ -1,9 +1,14 @@
-This document assumes you've got a fresh pi wheezy install and your network is 
+This document assumes you've got a fresh pi wheezy/jessie/stretch install and your network is 
 up and running installing everything to /home/pi/pisaver
 
 Set up app dir:
     mkdir /home/pi/pisaver
     cd /home/pi/pisaver
+
+Remove conflicting gl driver
+See http://forum.jogamp.org/Jogl-with-raspberry-pi3-td4037813.html
+And https://github.com/anholt/mesa/issues/24
+    sudo aptitude remove libgles2-mesa
 
 Install raspberry pi java and 7zip
     sudo apt-get update
