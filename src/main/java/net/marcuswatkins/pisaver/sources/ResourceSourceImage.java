@@ -44,6 +44,11 @@ public class ResourceSourceImage extends SourceImage {
 		return resource.toLowerCase().endsWith( ".jpg" ) || resource.toLowerCase().endsWith( ".jpeg" );
 	}
 
+    @Override
+    public Rotations getRotation() {
+        return Rotations.NONE;
+    }
+
 	
 
 }

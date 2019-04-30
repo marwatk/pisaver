@@ -4,16 +4,12 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
-
-import net.marcuswatkins.pisaver.util.Util;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
+
+import net.marcuswatkins.pisaver.util.Util;
 
 
 public class GLUtil {

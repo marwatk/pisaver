@@ -261,9 +261,6 @@ public class PiSaver implements GLEventListener {
 		gl.glEnable( GL2ES2.GL_BLEND );
 		gl.glBlendFunc( GL2ES2.GL_SRC_ALPHA, GL2ES2.GL_ONE_MINUS_SRC_ALPHA );
 		ImagePreparer<GLTextureData> preparer = new GLImagePreparer( gl );
-		if( cacheDir != null && cacheDir.isDirectory() ) {
-			preparer = new CachingImagePreparer<GLTextureData>( cacheDir, preparer, new GLTextureData() );
-		}
 		try {
 			GLTextureData data = preparer.prepareImage( new ResourceSourceImage( "shadow.png" ) );
 			GLImage shadow = new GLImage( gl, data );

@@ -6,16 +6,25 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import net.marcuswatkins.pisaver.sources.SourceImage.Rotations;
 import net.marcuswatkins.pisaver.util.Util;
 
 public abstract class SourceImage {
 
-	public final BufferedImage getBufferedImage() throws IOException {
+	public static enum Rotations {
+        NONE,
+        LEFT,
+        RIGHT,
+        FULL,
+    }
+    public final BufferedImage getBufferedImage() throws IOException {
 		InputStream is = getInputStream();
 		BufferedImage img = ImageIO.read( getInputStream() );
 		is.close();
 		return img;
 	}
+
+	public abstract SourceImage.Rotations getRotation();
 	public abstract float getRating();
 	public abstract String[] getTags();
 	public abstract String getUniqueReference();

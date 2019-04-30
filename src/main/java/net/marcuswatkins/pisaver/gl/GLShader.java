@@ -1,6 +1,5 @@
 package net.marcuswatkins.pisaver.gl;
 
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
