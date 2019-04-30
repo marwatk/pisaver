@@ -4,12 +4,13 @@ import java.io.File;
 
 import net.marcuswatkins.pisaver.sources.ImageSource;
 import net.marcuswatkins.pisaver.sources.SourceImage;
+import net.marcuswatkins.pisaver.sources.SourceImage.Rotations;
 import net.marcuswatkins.pisaver.util.IntHistory;
 
 
 public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implements AnimFinishedListener<R,T> {
 	
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	ImageSource<T> finder;
 	File folders[];
@@ -25,11 +26,12 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 	
 	private static final float SCALE_RANGE = 0.1f;
 	
-		private static final float[] ALPHA = new float[] { 0.0f, 1.0f };
+	private static final float[] ALPHA = new float[] { 0.0f, 1.0f };
 	private static final float ROTATION_AMT = 0.05f;
 	private static final float ROTATION_SHIFT_MAX = 0.03f;
 	private static final int ANIMATION_DURATION = DEBUG ? 1000 : 8000;
 	
+	public static final float VERTICAL_SCALE_ADJUSTMENT = 0.7f;
 	public static final float SPECIAL_SCALE = 1.2f;
 	public static final int SPECIAL_DURATION = DEBUG ? 1000 : 30000;
 	public static final int ALPHA_DURATION = Math.min( 2000, ANIMATION_DURATION / 4 );
@@ -114,11 +116,21 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 				System.err.println( "Last prepare time: " + finder.getLastPrepareTime() );
 				prepareTimeHistory.add( finder.getLastPrepareTime() );
 				NativeImage<R,T> nativeImage = nativeScreen.buildImage( texture );
+				
 				SourceImage source = texture.getSource();
 				boolean isSpecial = source != null && texture.getSource().isSpecial();
 				Point2D.Float pos = getNextPosition( isSpecial );
+				float imgScale = isSpecial ? SPECIAL_SCALE : scale;
+				Rotations rotation = nativeImage.getSource().getRotation();
+				if( isVertical( rotation, nativeImage ) ) {
+				    imgScale *= VERTICAL_SCALE_ADJUSTMENT;
+				}
 				
-				SaverImage<R,T> image = new SaverImage<R,T>( nativeImage, pos.x, pos.y, generateSingleAnim( isSpecial ? SPECIAL_SCALE : scale, isSpecial ? SPECIAL_DURATION : ANIMATION_DURATION ) );
+				SaverAnim anim = generateSingleAnim( 
+				        imgScale, 
+				        isSpecial ? SPECIAL_DURATION : ANIMATION_DURATION,
+				        rotation );
+				SaverImage<R,T> image = new SaverImage<R,T>( nativeImage, pos.x, pos.y, anim );
 				currentImage = image;
 				lastImageTime = now;
 				System.err.println( "Next image created" );
@@ -143,10 +155,12 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 		}
 		return pos;
 	}
-	private SaverAnim generateSingleAnim( float scale, int duration ) {
+	private SaverAnim generateSingleAnim( float scale, int duration, Rotations rotation ) {
 		float rotShift = (float)(Math.random() * ( ROTATION_SHIFT_MAX * 2 )) - ROTATION_SHIFT_MAX;
+        rotShift += rotationToRadians( rotation );
 		float neg = Math.random() < 0.5 ? 1 : -1;
-		return new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, new float[] { neg * (-ROTATION_AMT + rotShift), neg * (ROTATION_AMT + rotShift) }, ALPHA, duration, null );
+        float[] rotationRange = { ( neg * -ROTATION_AMT ) + rotShift, (neg * ROTATION_AMT) + rotShift };
+		return new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, rotationRange, ALPHA, duration, null );
 	}
 	
 	private SaverAnim[] generateAnim() {
@@ -166,6 +180,30 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 	@Override
 	public void animationFinished(SaverImage<R,T> img) {
 		img.cleanup( nativeScreen.getRenderer() );
+	}
+	
+	public static boolean isVertical( Rotations rotation, NativeImage<?,?> img ) {
+        switch( rotation ) {
+            case LEFT:
+            case RIGHT:
+                return img.getWidth() > img.getHeight();
+            default:
+                return img.getHeight() > img.getWidth();
+        }
+	}
+	
+	public static float rotationToRadians( Rotations rotation ) {
+	    switch( rotation ) {
+	        case LEFT:
+	            return -1.5708f;
+	        case RIGHT:
+	            return 1.5708f;
+	        case FULL:
+                return 3.14159f;
+            case NONE:
+            default:
+                return 0.0f;
+	    }
 	}
 	
 }

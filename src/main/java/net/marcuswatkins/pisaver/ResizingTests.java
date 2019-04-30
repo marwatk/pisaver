@@ -5,14 +5,14 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import net.marcuswatkins.pisaver.gl.GLTextureData;
-import net.marcuswatkins.pisaver.gl.GLUtil;
-import net.marcuswatkins.pisaver.util.Util;
-
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
+import net.marcuswatkins.pisaver.gl.GLTextureData;
+import net.marcuswatkins.pisaver.gl.GLUtil;
+import net.marcuswatkins.pisaver.util.Util;
 
 /*  Here were all of my attempts at speeding up the scaling of source images to fit in the pi's 2048 texture size. 
 None were fast enough to create a smooth experience (even using imagemagick's fastest resize would take ~30-50 seconds)

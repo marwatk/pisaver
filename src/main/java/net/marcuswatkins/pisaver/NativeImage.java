@@ -12,4 +12,6 @@ public interface NativeImage<R,T> {
 	public void setPosition(float x, float y);
 	public void dispose(R gl);
 	public SourceImage getSource();
+	public int getWidth();
+	public int getHeight();
 }

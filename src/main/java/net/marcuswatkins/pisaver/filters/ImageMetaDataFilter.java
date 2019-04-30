@@ -6,13 +6,6 @@ import net.marcuswatkins.pisaver.sources.FileSourceImage;
 import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.util.Util;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Descriptor;
-import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.xmp.XmpDirectory;
-
 
 public class ImageMetaDataFilter implements ImageFilter {
 

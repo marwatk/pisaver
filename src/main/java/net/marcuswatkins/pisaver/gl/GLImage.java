@@ -295,4 +295,14 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 		return sourceImage;
 	}
 
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
 }
