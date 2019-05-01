@@ -2,6 +2,7 @@ package net.marcuswatkins.pisaver;
 import java.awt.geom.Point2D;
 import java.io.File;
 
+import net.marcuswatkins.pisaver.gl.GLImage.ImageType;
 import net.marcuswatkins.pisaver.sources.ImageSource;
 import net.marcuswatkins.pisaver.sources.SourceImage;
 import net.marcuswatkins.pisaver.sources.SourceImage.Rotations;
@@ -10,7 +11,7 @@ import net.marcuswatkins.pisaver.util.IntHistory;
 
 public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implements AnimFinishedListener<R,T> {
 	
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	ImageSource<T> finder;
 	File folders[];
@@ -36,7 +37,8 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 	public static final int SPECIAL_DURATION = DEBUG ? 1000 : 30000;
 	public static final int ALPHA_DURATION = Math.min( 2000, ANIMATION_DURATION / 4 );
 	
-	public Saver( ) {
+	public Saver() {
+	    
 	}
 	
 	public void init( ImageSource<T> source, S nativeScreen ) {
@@ -115,7 +117,7 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 				T texture = finder.getNextImage();
 				System.err.println( "Last prepare time: " + finder.getLastPrepareTime() );
 				prepareTimeHistory.add( finder.getLastPrepareTime() );
-				NativeImage<R,T> nativeImage = nativeScreen.buildImage( texture );
+				NativeImage<R,T> nativeImage = nativeScreen.buildImage( texture, ImageType.NORMAL );
 				
 				SourceImage source = texture.getSource();
 				boolean isSpecial = source != null && texture.getSource().isSpecial();
@@ -157,21 +159,11 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 	}
 	private SaverAnim generateSingleAnim( float scale, int duration, Rotations rotation ) {
 		float rotShift = (float)(Math.random() * ( ROTATION_SHIFT_MAX * 2 )) - ROTATION_SHIFT_MAX;
-        rotShift += rotationToRadians( rotation );
+		rotShift += rotationToRadians( rotation );
 		float neg = Math.random() < 0.5 ? 1 : -1;
-        float[] rotationRange = { ( neg * -ROTATION_AMT ) + rotShift, (neg * ROTATION_AMT) + rotShift };
+        float[] rotationRange = { (neg * -1 * ROTATION_AMT) + rotShift, (neg * ROTATION_AMT) + rotShift };
 		return new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, rotationRange, ALPHA, duration, null );
 	}
-	
-	private SaverAnim[] generateAnim() {
-		SaverAnim anim[] = new SaverAnim[2];
-		float rotShift = (float)(Math.random() * ( ROTATION_SHIFT_MAX * 2 )) - ROTATION_SHIFT_MAX;
-		float neg = Math.random() < 0.5 ? 1 : -1;
-		anim[0] = new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, new float[] { neg * (-ROTATION_AMT + rotShift), neg * (ROTATION_AMT + rotShift) }, ALPHA, ANIMATION_DURATION, null );
-		anim[1] = new SaverAnim( new float[] { scale, 0.0f }, new float[] {neg * (ROTATION_AMT + rotShift) }, new float[] { 1.0f, 0.0f }, 2000, this );
-		return anim;
-	}
-	
 	
 	public void dispose(R renderer) {
 		

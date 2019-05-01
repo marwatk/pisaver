@@ -15,11 +15,8 @@ void main()
 
 	vec4 b = a_position;
 
-	b.x = a_position.x*cos(rad_angle) - a_position.y*sin(rad_angle);
-	b.y = a_position.y*cos(rad_angle) + a_position.x*sin(rad_angle);
-
-	b.x *= adjustments.y; //scale x
-	b.y *= scale_y; //scale y
+	b.x = a_position.x*adjustments.y*cos(rad_angle) - a_position.y*scale_y*sin(rad_angle);
+	b.y = a_position.y*scale_y*cos(rad_angle) + a_position.x*adjustments.y*sin(rad_angle);
 
 	b.x += adjustments.z; //xshift
 	b.y += adjustments.w; //yshift

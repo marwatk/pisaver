@@ -73,6 +73,7 @@ import net.marcuswatkins.pisaver.gl.GLImage;
 import net.marcuswatkins.pisaver.gl.GLImagePreparer;
 import net.marcuswatkins.pisaver.gl.GLScreen;
 import net.marcuswatkins.pisaver.gl.GLTextureData;
+import net.marcuswatkins.pisaver.gl.GLImage.ImageType;
 import net.marcuswatkins.pisaver.sources.FileImageSource;
 import net.marcuswatkins.pisaver.sources.ImageSource;
 import net.marcuswatkins.pisaver.sources.ListImageSource;
@@ -107,8 +108,6 @@ public class PiSaver implements GLEventListener {
 	private static ImageMetaDataFilter filter;
 	
 	private static File folders[];
-	
-	private static File cacheDir;
 	
 	private static String fileListPath;
 	
@@ -158,11 +157,6 @@ public class PiSaver implements GLEventListener {
 			if( excludedTags.length() > 0 ) {
 				excludedTagsAr = excludedTags.split( ";" );
 			}
-		}
-		
-		String cacheDirStr = props.getProperty( "cacheDir" );
-		if( cacheDirStr != null && cacheDirStr.length() > 0 ) {
-			cacheDir = new File( cacheDirStr );
 		}
 		
 		int cfgWidth = Util.safeParseInt(props.getProperty( "width" ), -1);
@@ -263,7 +257,7 @@ public class PiSaver implements GLEventListener {
 		ImagePreparer<GLTextureData> preparer = new GLImagePreparer( gl );
 		try {
 			GLTextureData data = preparer.prepareImage( new ResourceSourceImage( "shadow.png" ) );
-			GLImage shadow = new GLImage( gl, data );
+			GLImage shadow = new GLImage( gl, data, ImageType.SHADOW );
 			GLImage.setShadow( shadow );
 		}
 		catch( Exception e ) {

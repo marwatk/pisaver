@@ -41,12 +41,6 @@ public class GLTextureData implements PreparedImage {
 		//Empty constructor needed for loading
 	}
 	
-	private static final byte TYPE_BYTE = 1;
-	//private static final byte TYPE_INT = 2;
-	private static final int SPECIAL = 0x8a78facd;
-	private static final int BUFFER_SIZE = 4096;
-	
-	
 	public TextureData tData;
 	public byte[] bData;
 	int width;

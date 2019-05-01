@@ -20,6 +20,15 @@ import com.jogamp.opengl.util.texture.TextureIO;
 
 public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 
+    public static enum ImageType {
+        NORMAL,
+        SHADOW,
+        BACKGROUND
+    }
+    
+    public static final float SHADOW_ALPHA_MULTI = 0.7f;
+    public static final float SHADOW_SHIFT = 0.03f;
+    
 	private static final short[] indicesData = {0, 1, 2, 0, 2, 3};
 	private static final ShortBuffer indices = Buffers.newDirectShortBuffer(indicesData);
 	private static int indicesBufferIdx = 0;
@@ -51,10 +60,10 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 	
 	private int width;
 	private int height;
-	
+	private ImageType type;
 	
 	public static void setShadow( GLImage image ) {
-		shadow = image;
+	    shadow = image;
 	}
 	
 	public static void init(GL2ES2 gl) throws IOException {
@@ -74,12 +83,12 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 	//These cut off the edges of the image ever so slightly (2 tenths of a percent, so ~2 pixels on a 1024 texture)
 	private static final float TEXTURE_MIN = 0.002f;
 	private static final float TEXTURE_MAX = 0.998f;
-	public GLImage( GL2ES2 gl, GLTextureData td ) {
-		this( gl, td, false );
+	public GLImage( GL2ES2 gl, GLTextureData td, ImageType type ) {
+		this( gl, td, false, type );
 	}
 	
-	public GLImage( GL2ES2 gl, GLTextureData td, boolean useBackgroundShader ) {
-		
+	public GLImage( GL2ES2 gl, GLTextureData td, boolean useBackgroundShader, ImageType type ) {
+		this.type = type;
 		sourceImage = td.getSource();
 		antiAlias = !useBackgroundShader;
         long start = System.currentTimeMillis();
@@ -187,20 +196,42 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 
 	public void setAlpha( float alpha ) {
 		this.alpha = alpha;
+		if( shadow != null && shadow != this ) {
+            shadow.setAlpha( alpha * SHADOW_ALPHA_MULTI );
+		}
 	}
 	public void setScale( float scale ) {
-		this.scaleX = this.scaleY = scale;
+		setScale( scale, scale );
 	}
 	public void setScale( float scaleX, float scaleY ) {
 		this.scaleX = scaleX;
 		this.scaleY = scaleY;
+		if( shadow != null && shadow != this ) {
+            float shadowScaleX = 0.0f;
+            float shadowScaleY = 0.0f;
+            if( width > height ) {
+                shadowScaleX = scaleX;
+                shadowScaleY = ((float)height / (float)width) * shadowScaleX;
+            }
+            else {
+                shadowScaleY = scaleY;
+                shadowScaleX = ((float)width / (float)height) * shadowScaleY;
+            }
+            shadow.setScale( shadowScaleX, shadowScaleY );
+		}
 	}
 	public void setShift( float x, float y ) {
 		this.xshift = x;
 		this.yshift = y;
+		if( shadow != null && shadow != this ) {
+		    shadow.setShift( xshift + SHADOW_SHIFT, yshift - SHADOW_SHIFT);
+		}
 	}
 	public void setRotation( float radians ) {
 		this.rotation = radians;
+		if( shadow != null && shadow != this ) {
+		    shadow.setRotation( rotation );
+		}
 	}
 	public void setPosition(float x, float y) {
 		this.setShift( x, y );
@@ -211,23 +242,8 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 	private static final float ANTI_ALIAS_ALPHA_ADJ = 0.3f;
 	public void draw(GL2ES2 gl) {
 		
-		if( shadow != null && shadow != this ) {
+		if( type != ImageType.BACKGROUND && shadow != null && shadow != this ) {
 			shadow.antiAlias = false;
-			float shadowScaleX = 0.0f;
-			float shadowScaleY = 0.0f;
-			if( width > height ) {
-				shadowScaleX = scaleX;
-				shadowScaleY = ((float)height / (float)width) * shadowScaleX;
-			}
-			else {
-				shadowScaleY = scaleY;
-				shadowScaleX = ((float)width / (float)height) * shadowScaleY;
-			}
-			shadow.setAlpha( alpha * 0.7f );
-			shadow.setShift( xshift + 0.03f, yshift - 0.03f);
-			
-			shadow.setScale( shadowScaleX, shadowScaleY );
-			shadow.setRotation( rotation );
 			shadow.draw( gl );
 		}
 		
@@ -239,9 +255,9 @@ public class GLImage implements NativeImage<GL2ES2,GLTextureData> {
 		vertices.position(3);
 		shader.setTexCoords( verticesData.length, vertices );
 		
-		shader.setRotation( rotation );
+	    shader.setRotation( rotation );
 		
-		//System.err.println( "Alpha: " + alpha + ", Scale: " + scale + ", Coords: " + xshift + ", " + yshift );
+		//System.err.println( "Type: " + type + ", Rotation: " + rotation + ", Alpha: " + alpha + ", ScaleX: " + scaleX + ", ScaleY: " + scaleY + ", Coords: " + xshift + ", " + yshift );
 		gl.glActiveTexture(GL2ES2.GL_TEXTURE0);
 		if( tex != null ) {
 			tex.bind( gl );

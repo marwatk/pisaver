@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import net.marcuswatkins.pisaver.NativeImage;
 import net.marcuswatkins.pisaver.NativeScreen;
+import net.marcuswatkins.pisaver.gl.GLImage.ImageType;
 
 import com.jogamp.opengl.GL2ES2;
 
@@ -69,15 +70,15 @@ public class GLScreen implements NativeScreen<GL2ES2,GLTextureData> {
 
 	}
 	
-	public GLImage buildImage( GLTextureData t ) {
-		return new GLImage( gl, t );
+	public GLImage buildImage( GLTextureData t, ImageType type ) {
+		return new GLImage( gl, t, type );
 	}
 
 	@Override
 	public NativeImage<GL2ES2, GLTextureData> captureScreen() {
 		byte[] buffer = captureBuffer( );
 		GLTextureData texture = new GLTextureData( buffer, width, height, GL2ES2.GL_RGB, null );
-		GLImage image = new GLImage( gl, texture, true );
+		GLImage image = new GLImage( gl, texture, true, ImageType.BACKGROUND );
 		image.setAlpha( 1.0f );
 		image.setRotation( 0.0f );
 		image.setScale( 1.0f, -1.0f );
