@@ -11,7 +11,7 @@ import net.marcuswatkins.pisaver.util.IntHistory;
 
 public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implements AnimFinishedListener<R,T> {
 	
-	private static final boolean DEBUG = false;
+	private boolean debug = false;
 	
 	ImageSource<T> finder;
 	File folders[];
@@ -30,15 +30,14 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 	private static final float[] ALPHA = new float[] { 0.0f, 1.0f };
 	private static final float ROTATION_AMT = 0.05f;
 	private static final float ROTATION_SHIFT_MAX = 0.03f;
-	private static final int ANIMATION_DURATION = DEBUG ? 1000 : 8000;
+	private static final int ANIMATION_DURATION = 8000;
 	
 	public static final float VERTICAL_SCALE_ADJUSTMENT = 0.7f;
 	public static final float SPECIAL_SCALE = 1.2f;
-	public static final int SPECIAL_DURATION = DEBUG ? 1000 : 30000;
-	public static final int ALPHA_DURATION = Math.min( 2000, ANIMATION_DURATION / 4 );
+	public static final int SPECIAL_DURATION = 30000;
 	
-	public Saver() {
-	    
+	public Saver( boolean debug ) {
+	    this.debug = debug;
 	}
 	
 	public void init( ImageSource<T> source, S nativeScreen ) {
@@ -130,7 +129,7 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 				
 				SaverAnim anim = generateSingleAnim( 
 				        imgScale, 
-				        isSpecial ? SPECIAL_DURATION : ANIMATION_DURATION,
+				        debug ? 1000 : isSpecial ? SPECIAL_DURATION : ANIMATION_DURATION,
 				        rotation );
 				SaverImage<R,T> image = new SaverImage<R,T>( nativeImage, pos.x, pos.y, anim );
 				currentImage = image;
@@ -162,7 +161,8 @@ public class Saver<R,T extends PreparedImage,S extends NativeScreen<R,T>> implem
 		rotShift += rotationToRadians( rotation );
 		float neg = Math.random() < 0.5 ? 1 : -1;
         float[] rotationRange = { (neg * -1 * ROTATION_AMT) + rotShift, (neg * ROTATION_AMT) + rotShift };
-		return new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, rotationRange, ALPHA, duration, null );
+        int alphaDuration = Math.min( 2000, duration / 4 );
+		return new SaverAnim( new float[] { scale - SCALE_RANGE, scale }, rotationRange, ALPHA, duration, alphaDuration, null );
 	}
 	
 	public void dispose(R renderer) {

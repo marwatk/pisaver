@@ -35,7 +35,7 @@ public class ResourceSourceImage extends SourceImage {
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		URL url = PiSaver.class.getResource(resource);
+		URL url = PiSaver.class.getClassLoader().getResource(resource);
 		return url.openStream();
 	}
 

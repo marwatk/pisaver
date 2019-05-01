@@ -138,6 +138,8 @@ public class PiSaver implements GLEventListener {
 		float minRating = Util.safeParseFloat( props.getProperty( "minRating" ), -1.0f );
 		float maxRating = Util.safeParseFloat( props.getProperty( "maxRating" ), -1.0f );
 		
+		boolean debug = Util.safeParseBool( props.getProperty( "debug", "false" ), false );
+		
 		boolean cfgFs = Util.safeParseBool( props.getProperty( "fullScreen", "true" ), true );
 		
 		String includedTags = props.getProperty( "includeTags" );
@@ -168,7 +170,7 @@ public class PiSaver implements GLEventListener {
 		fileListPath = props.getProperty( "fileListFile" );
 				
 		
-		saver = new Saver<GL2ES2,GLTextureData,GLScreen>( );
+		saver = new Saver<GL2ES2,GLTextureData,GLScreen>( debug );
 		
 		String profiles[] = GLProfile.GL_PROFILE_LIST_ALL;
 		for( int i = 0; i < profiles.length; i++ ) {

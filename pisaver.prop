@@ -15,3 +15,4 @@ excludeTags = no show;noshow
 width = 1920
 height = 1080
 
+debug = true

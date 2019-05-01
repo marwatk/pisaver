@@ -11,15 +11,17 @@ public class SaverAnim {
 	private float[] rotation;
 	private float[] alpha;
 	private int duration;
+	private int alphaDuration;
 
 	private AnimFinishedListener listener;
 	
-	public SaverAnim( float scale[], float rotation[], float alpha[], int duration, AnimFinishedListener listener ) {
+	public SaverAnim( float scale[], float rotation[], float alpha[], int duration, int alphaDuration, AnimFinishedListener listener ) {
 		this.scale = scale;
 		this.rotation = rotation;
 		this.alpha = alpha;
 		this.duration = duration;
 		this.listener = listener;
+		this.alphaDuration = alphaDuration;
 	}
 	
 	boolean animate( SaverImage<?,?> img, NativeImage<?,?> nativeImage ) {
@@ -35,7 +37,7 @@ public class SaverAnim {
 				listener.animationFinished( img );
 			}
 		}
-		nativeImage.setAlpha( interpolate( alpha, elapsed, Saver.ALPHA_DURATION ) );
+		nativeImage.setAlpha( interpolate( alpha, elapsed, alphaDuration ) );
 		nativeImage.setScale( interpolate( scale, elapsed, duration ) );
 		nativeImage.setRotation( interpolate( rotation, elapsed, duration ) );
 		return animationFinished;
