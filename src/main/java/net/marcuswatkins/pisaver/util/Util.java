@@ -229,11 +229,15 @@ public class Util {
 	}
 
 	public static String readResource(String name) throws IOException {
-		URL url = PiSaver.class.getResource(name);
-		InputStream is = url.openStream();
+		URL resource = PiSaver.class.getClassLoader().getResource(name);
+		if( resource == null ) {
+		    throw new RuntimeException( "Unable to find '" + name + "'" );
+		}
+		InputStream is = resource.openStream();
 		Scanner s = new Scanner(is, "UTF-8");
 		String rval = s.useDelimiter("\\A").next();
 		s.close();
+		//System.err.println( name + ":\n" + rval );
 		return rval;
 	}
 

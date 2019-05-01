@@ -7,6 +7,6 @@ I had intended to just use this for me so the code isn't great, but it could be 
 
 See the install instructions here:
 
-https://github.com/marwatk/pisaver/blob/master/INSTALL
+https://github.com/marwatk/pisaver/blob/master/INSTALL.md
 
 Depending on the size of your images, initial loading could take up to 60 seconds per image (resizing is slow on the pi), but after each image has been loaded cache is used and it starts going much faster (new images appear every 8 seconds or so).
